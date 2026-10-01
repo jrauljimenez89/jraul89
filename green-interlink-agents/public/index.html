@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Oficina Green Interlink</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..800&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<header class="barra">
+  <div class="barra-fila">
+    <div class="marca"><h1>Green <span>Interlink</span></h1><span class="etiqueta">Oficina virtual</span></div>
+    <div class="estado-oficina">
+      <span id="estado-modo" class="pastilla">Cargando</span>
+      <span id="turnos" class="dato tenue"></span>
+      <button class="boton mini" id="boton-pausa" data-accion="pausa" hidden>Pausar</button>
+      <button class="boton mini" data-accion="nueva-tarea">Asignar tarea</button>
+      <button class="boton principal mini" data-accion="nuevo-agente">Incorporar agente</button>
+    </div>
+  </div>
+  <nav class="pestanas" aria-label="Secciones">
+    <button data-pestana="oficina">Oficina</button>
+    <button data-pestana="tareas">Tareas</button>
+    <button data-pestana="pipeline">Pipeline</button>
+    <button data-pestana="bandeja">Tu bandeja<span class="contador" id="contador-bandeja" hidden>0</span></button>
+    <button data-pestana="actividad">Actividad</button>
+  </nav>
+</header>
+<main>
+  <p class="aviso-modo" id="aviso-modo" hidden></p>
+  <div id="contenido"></div>
+</main>
+<dialog id="dialogo-agente"></dialog>
+<script src="app.js"></script>
+</body>
+</html>

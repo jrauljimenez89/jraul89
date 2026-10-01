@@ -1,0 +1,52 @@
+{
+  "siguienteId": 40,
+  "pausado": false,
+  "consumo": { "fecha": "", "turnos": 23, "tokensEntrada": 0, "tokensSalida": 0 },
+  "agentes": {
+    "sofia": { "estado": "trabajando", "foco": "Lista de instaladores de telecomunicaciones en Madrid", "desde": 3 },
+    "andres": { "estado": "trabajando", "foco": "Auditoría SEO de greeninterlink.com", "desde": 6 },
+    "javier": { "estado": "trabajando", "foco": "Margen de la oferta para Redes Ejemplo S.L.", "desde": 2 }
+  },
+  "tareas": [
+    { "id": "T-31", "titulo": "Lista de instaladores de telecomunicaciones en Madrid", "descripcion": "20 empresas instaladoras con renovación de equipos de red prevista. Para cada una: web, tamaño, persona de contacto y por qué encaja.", "asignadoA": "sofia", "creadaPor": "marco", "estado": "en_curso", "resultado": "Llevo 12 de 20. Fuentes: webs corporativas y registro de instaladores.", "creada": 95, "actualizada": 3 },
+    { "id": "T-30", "titulo": "Auditoría SEO de greeninterlink.com", "descripcion": "Estructura, metadatos, velocidad y palabras clave. Entregar lista priorizada de mejoras.", "asignadoA": "andres", "creadaPor": "lucia", "estado": "en_curso", "resultado": "", "creada": 120, "actualizada": 6 },
+    { "id": "T-29", "titulo": "Calendario de LinkedIn de octubre", "descripcion": "3 publicaciones por semana: casos, datos de impacto y equipo.", "asignadoA": "diego", "creadaPor": "lucia", "estado": "esperando_aprobacion", "resultado": "12 publicaciones redactadas. Enviadas a la bandeja del CEO.", "creada": 300, "actualizada": 40 },
+    { "id": "T-28", "titulo": "Precio por tonelada para recogida de equipos de red", "descripcion": "Propuesta de tarifa con margen mínimo del 25 %.", "asignadoA": "javier", "creadaPor": "marco", "estado": "en_curso", "resultado": "", "creada": 180, "actualizada": 2 },
+    { "id": "T-27", "titulo": "Revisar condiciones generales de recogida", "descripcion": "Comprobar cláusulas de responsabilidad, trazabilidad y certificado de destrucción de datos.", "asignadoA": "isabel", "creadaPor": "elena", "estado": "pendiente", "resultado": "", "creada": 60, "actualizada": 60 },
+    { "id": "T-26", "titulo": "Cálculo de CO2 evitado por router reacondicionado", "descripcion": "Dato defendible y con fuente para usarlo en marketing y propuestas.", "asignadoA": "carmen", "creadaPor": "lucia", "estado": "bloqueada", "resultado": "Necesito saber qué modelos de router recogemos más para elegir el factor de emisión correcto. Pregunta enviada al CEO.", "creada": 400, "actualizada": 90 },
+    { "id": "T-25", "titulo": "Definir el cliente ideal", "descripcion": "Segmentos, tamaño, señales de compra y objeciones habituales.", "asignadoA": "marco", "creadaPor": "elena", "estado": "hecha", "resultado": "Tres segmentos prioritarios: 1) instaladores de telecomunicaciones de 10-200 empleados, 2) operadores regionales de fibra, 3) centros de datos medianos. Señal de compra: renovación de equipos o cierre de una sede.", "creada": 1500, "actualizada": 700 },
+    { "id": "T-24", "titulo": "Revisión semanal de procesos", "descripcion": "Detectar cuellos de botella de la primera semana.", "asignadoA": "pablo", "creadaPor": "elena", "estado": "pendiente", "resultado": "", "creada": 30, "actualizada": 30 }
+  ],
+  "mensajes": [
+    { "id": "M-39", "de": "javier", "para": "marco", "texto": "Con los costes de transporte actuales, por debajo de 140 €/t perdemos dinero en recogidas de menos de 2 t. Te propongo un mínimo por servicio.", "fecha": 2, "leido": false },
+    { "id": "M-38", "de": "carmen", "para": "ceo", "texto": "¿Qué tres modelos de router o equipo de red recogemos con más frecuencia? Lo necesito para calcular el CO2 evitado con una fuente fiable.", "fecha": 90, "leido": false },
+    { "id": "M-37", "de": "elena", "para": "ceo", "texto": "Resumen de la semana: cliente ideal definido, prospección en marcha (12 empresas investigadas), calendario de LinkedIn listo para tu revisión. Riesgo: falta el dato de CO2 para el material comercial.", "fecha": 120, "leido": false },
+    { "id": "M-36", "de": "marco", "para": "sofia", "texto": "Prioriza instaladores que ya trabajen con operadores grandes: son los que más equipo retiran.", "fecha": 100, "leido": true },
+    { "id": "M-35", "de": "lucia", "para": "andres", "texto": "Cuando tengas la auditoría, cruza las palabras clave con el calendario de Diego para que los artículos y los posts se refuercen.", "fecha": 115, "leido": true },
+    { "id": "M-34", "de": "isabel", "para": "sofia", "texto": "Recuerda: los mensajes de LinkedIn los envía Raúl desde su cuenta, y nada de copiar datos personales en masa. Solo información pública y necesaria.", "fecha": 140, "leido": true }
+  ],
+  "aprobaciones": [
+    { "id": "A-33", "tipo": "general", "solicitante": "diego", "titulo": "Calendario de LinkedIn de octubre", "detalle": "12 publicaciones (3 por semana). Temas: segunda vida de los equipos de red, cifras de reciclaje de cobre, cómo trabajamos la trazabilidad, presentación del equipo. Los textos están en tus borradores.", "tareaId": "T-29", "estado": "pendiente", "comentario": "", "fecha": 40 },
+    { "id": "A-32", "tipo": "contratacion", "solicitante": "elena", "titulo": "Incorporar a Laura Gil como Responsable de compras y logística", "detalle": "Carmen está asumiendo la logística de recogidas además de la normativa. Laura negociaría con transportistas y compradores de material recuperado.\n\nResponsabilidades:\n- Negociar tarifas con transportistas\n- Buscar compradores de cobre y metales recuperados\n- Planificar rutas de recogida", "estado": "pendiente", "comentario": "", "fecha": 25, "propuesta": { "nombre": "Laura Gil", "cargo": "Responsable de compras y logística", "departamento": "operaciones", "reportaA": "carmen", "responsabilidades": ["Negociar tarifas con transportistas", "Buscar compradores de cobre y metales recuperados", "Planificar rutas de recogida"] } }
+  ],
+  "borradores": [
+    { "id": "B-22", "autor": "sofia", "canal": "linkedin_mensaje", "destinatario": "Responsable de operaciones · Instalaciones Ejemplo S.L.", "asunto": "", "contenido": "Hola, he visto que estáis desplegando fibra en la zona norte. Cuando se renuevan equipos suele quedar material de red sin salida: en Green Interlink lo recogemos, reacondicionamos lo que tiene segunda vida y reciclamos el resto con certificado. ¿Te encaja una llamada de 15 minutos la semana que viene?\n\nRaúl", "estado": "borrador", "fecha": 20 },
+    { "id": "B-21", "autor": "diego", "canal": "linkedin_publicacion", "destinatario": "Página de empresa", "asunto": "", "contenido": "Un router no muere cuando se desconecta.\n\nEn muchos casos puede reacondicionarse y volver a funcionar años. Y cuando no, su cobre, su aluminio y sus plásticos vuelven a la cadena de producción.\n\nEsa es nuestra forma de entender las telecomunicaciones: conectadas también con el planeta. ♻️\n\n#EconomíaCircular #Telecomunicaciones #RAEE", "estado": "borrador", "fecha": 45 }
+  ],
+  "oportunidades": [
+    { "id": "O-12", "empresa": "Instalaciones Ejemplo S.L.", "contacto": "Responsable de operaciones", "necesidad": "Retirada de equipos de red por renovación", "etapa": "prospecto", "valorEstimado": 18000, "responsable": "sofia", "notas": "Ejemplo de demostración", "creada": 200, "actualizada": 20 },
+    { "id": "O-11", "empresa": "Redes Ejemplo S.L.", "contacto": "Director técnico", "necesidad": "Recogida mensual de material de red", "etapa": "propuesta", "valorEstimado": 42000, "responsable": "marco", "notas": "Finanzas revisando el margen", "creada": 900, "actualizada": 2 },
+    { "id": "O-10", "empresa": "Fibra Demo Norte", "contacto": "Por identificar", "necesidad": "Gestión de cableado de cobre retirado", "etapa": "contactado", "valorEstimado": 25000, "responsable": "sofia", "notas": "", "creada": 600, "actualizada": 300 },
+    { "id": "O-9", "empresa": "Centro de Datos Muestra", "contacto": "Responsable de sostenibilidad", "necesidad": "Destrucción certificada de datos y reciclaje de servidores", "etapa": "reunion", "valorEstimado": 60000, "responsable": "marco", "notas": "Reunión el jueves", "creada": 1300, "actualizada": 150 }
+  ],
+  "actividad": [
+    { "fecha": 2, "agente": "javier", "texto": "escribió a Marco Salinas" },
+    { "fecha": 3, "agente": "sofia", "texto": "añadió la oportunidad Instalaciones Ejemplo S.L. al pipeline" },
+    { "fecha": 20, "agente": "sofia", "texto": "preparó un borrador de mensaje de LinkedIn para Instalaciones Ejemplo S.L." },
+    { "fecha": 25, "agente": "elena", "texto": "pidió aprobación: «Incorporar a Laura Gil como Responsable de compras y logística»" },
+    { "fecha": 40, "agente": "diego", "texto": "pidió aprobación: «Calendario de LinkedIn de octubre»" },
+    { "fecha": 60, "agente": "elena", "texto": "asignó la tarea T-27 «Revisar condiciones generales de recogida» a Isabel" },
+    { "fecha": 90, "agente": "carmen", "texto": "movió T-26 a «bloqueada»" },
+    { "fecha": 120, "agente": "elena", "texto": "escribió a Raúl Jiménez (CEO)" }
+  ]
+}

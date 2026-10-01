@@ -5,10 +5,12 @@
   "description": "Oficina virtual de agentes de IA para Green Interlink",
   "type": "module",
   "scripts": {
-    "start": "node --env-file-if-exists=.env src/server.js"
+    "start": "node --disable-warning=ExperimentalWarning --env-file-if-exists=.env src/server.js",
+    "importar-hubspot": "node --disable-warning=ExperimentalWarning --env-file-if-exists=.env scripts/importar-hubspot.mjs",
+    "demo": "node scripts/construir-demo.mjs"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.13"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",

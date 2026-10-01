@@ -1,0 +1,51 @@
+{
+  "empresas": [
+    { "id": 1, "nombre": "Telecom Ejemplo Norte", "tipo": "cliente", "sector": "Operador de fibra", "ciudad": "Bilbao", "pais": "España", "web": "ejemplo-norte.test", "notas": "Cliente desde 2024. Renuevan equipos de cliente cada 3 años." },
+    { "id": 2, "nombre": "Instalaciones Ejemplo S.L.", "tipo": "prospecto", "sector": "Instalaciones de telecomunicaciones", "ciudad": "Madrid", "pais": "España" },
+    { "id": 3, "nombre": "Redes Ejemplo S.L.", "tipo": "prospecto", "sector": "Integrador de redes", "ciudad": "Valencia", "pais": "España" },
+    { "id": 4, "nombre": "Centro de Datos Muestra", "tipo": "prospecto", "sector": "Centro de datos", "ciudad": "Barcelona", "pais": "España" },
+    { "id": 5, "nombre": "Cableados Demo Sur", "tipo": "cliente", "sector": "Instalaciones de telecomunicaciones", "ciudad": "Sevilla", "pais": "España", "notas": "Cliente dormido: último servicio hace más de un año." },
+    { "id": 6, "nombre": "Fibra Demo Levante", "tipo": "prospecto", "sector": "Operador de fibra", "ciudad": "Alicante", "pais": "España" },
+    { "id": 7, "nombre": "Ayuntamiento de Ejemplo", "tipo": "prospecto", "sector": "Administración pública", "ciudad": "Zaragoza", "pais": "España" },
+    { "id": 8, "nombre": "Metales Recuperados Muestra", "tipo": "socio", "sector": "Comprador de cobre y metales", "ciudad": "Madrid", "pais": "España" },
+    { "id": 9, "nombre": "Antenas Ejemplo Galicia", "tipo": "cliente", "sector": "Instalaciones de telecomunicaciones", "ciudad": "Vigo", "pais": "España" },
+    { "id": 10, "nombre": "Hospital Muestra", "tipo": "prospecto", "sector": "Sanidad", "ciudad": "Madrid", "pais": "España" }
+  ],
+  "contactos": [
+    { "id": 1, "empresa_id": 1, "nombre": "Ana", "apellidos": "Ejemplo", "cargo": "Responsable de compras", "email": "ana@ejemplo-norte.test", "telefono": "600 000 001", "consentimiento": "si" },
+    { "id": 2, "empresa_id": 1, "nombre": "Jorge", "apellidos": "Muestra", "cargo": "Director técnico", "email": "jorge@ejemplo-norte.test", "consentimiento": "desconocido" },
+    { "id": 3, "empresa_id": 2, "nombre": "Marta", "apellidos": "Demo", "cargo": "Responsable de operaciones", "consentimiento": "desconocido" },
+    { "id": 4, "empresa_id": 3, "nombre": "Luis", "apellidos": "Ejemplo", "cargo": "Director técnico", "email": "luis@redes-ejemplo.test", "consentimiento": "desconocido" },
+    { "id": 5, "empresa_id": 4, "nombre": "Elena", "apellidos": "Muestra", "cargo": "Responsable de sostenibilidad", "email": "elena@cdmuestra.test", "consentimiento": "si" },
+    { "id": 6, "empresa_id": 5, "nombre": "Pedro", "apellidos": "Demo", "cargo": "Gerente", "email": "pedro@cableados-demo.test", "consentimiento": "desconocido" },
+    { "id": 7, "empresa_id": 5, "nombre": "Rosa", "apellidos": "Ejemplo", "cargo": "Administración", "email": "rosa@cableados-demo.test", "consentimiento": "baja" },
+    { "id": 8, "empresa_id": 6, "nombre": "Carlos", "apellidos": "Muestra", "cargo": "Jefe de red", "consentimiento": "desconocido" },
+    { "id": 9, "empresa_id": 7, "nombre": "Lucía", "apellidos": "Demo", "cargo": "Técnica de medio ambiente", "email": "medioambiente@ayto-ejemplo.test", "consentimiento": "desconocido" },
+    { "id": 10, "empresa_id": 8, "nombre": "Andrés", "apellidos": "Ejemplo", "cargo": "Comprador", "telefono": "600 000 010", "consentimiento": "si" },
+    { "id": 11, "empresa_id": 9, "nombre": "Sara", "apellidos": "Muestra", "cargo": "Directora", "email": "sara@antenas-ejemplo.test", "consentimiento": "si" },
+    { "id": 12, "empresa_id": 10, "nombre": "Raquel", "apellidos": "Demo", "cargo": "Responsable de compras", "consentimiento": "desconocido" }
+  ],
+  "negocios": [
+    { "id": 1, "titulo": "Retirada de equipos de red por renovación", "empresa_id": 2, "contacto_id": 3, "etapa": "nuevo", "valor": 18000, "proximo_paso": "Enviar mensaje de LinkedIn (borrador listo)", "proximo_paso_dias": 0, "responsable": "sofia", "actualizado": 20 },
+    { "id": 2, "titulo": "Recogida mensual de material de red", "empresa_id": 3, "contacto_id": 4, "etapa": "propuesta", "valor": 42000, "proximo_paso": "Revisar margen con Finanzas y enviar propuesta", "proximo_paso_dias": 1, "responsable": "marco", "actualizado": 2 },
+    { "id": 3, "titulo": "Gestión de cableado de cobre retirado", "empresa_id": 6, "contacto_id": 8, "etapa": "contactado", "valor": 25000, "proximo_paso": "Segunda llamada", "proximo_paso_dias": -3, "responsable": "sofia", "actualizado": 300 },
+    { "id": 4, "titulo": "Destrucción certificada de datos y reciclaje de servidores", "empresa_id": 4, "contacto_id": 5, "etapa": "reunion", "valor": 60000, "proximo_paso": "Reunión de presentación", "proximo_paso_dias": 2, "responsable": "marco", "actualizado": 150 },
+    { "id": 5, "titulo": "Renovación del contrato anual 2027", "empresa_id": 1, "contacto_id": 1, "etapa": "negociacion", "valor": 85000, "proximo_paso": "Llamada para cerrar condiciones", "proximo_paso_dias": 4, "responsable": "ceo", "actualizado": 600 },
+    { "id": 6, "titulo": "Reactivación: recogida de equipos de clientes", "empresa_id": 5, "contacto_id": 6, "etapa": "nuevo", "valor": 12000, "responsable": "marco", "actualizado": 30 },
+    { "id": 7, "titulo": "Punto limpio de RAEE municipal", "empresa_id": 7, "contacto_id": 9, "etapa": "contactado", "valor": 30000, "proximo_paso": "Consultar pliego de la licitación con Legal", "proximo_paso_dias": 5, "responsable": "marco", "actualizado": 900 },
+    { "id": 8, "titulo": "Reacondicionamiento de antenas", "empresa_id": 9, "contacto_id": 11, "etapa": "ganado", "valor": 22000, "responsable": "ceo", "cerrado": 4000, "actualizado": 4000, "motivo_cierre": "Mejor precio y certificado incluido" },
+    { "id": 9, "titulo": "Recogida de equipos médicos con datos", "empresa_id": 10, "contacto_id": 12, "etapa": "perdido", "valor": 15000, "responsable": "marco", "cerrado": 20000, "actualizado": 20000, "motivo_cierre": "Sin presupuesto: volver a llamar en enero" }
+  ],
+  "actividades": [
+    { "id": 1, "tipo": "linkedin", "texto": "Borrador de primer mensaje preparado por Sofía para Marta.", "empresa_id": 2, "negocio_id": 1, "autor": "sofia", "fecha": 20 },
+    { "id": 2, "tipo": "nota", "texto": "Finanzas propone un mínimo de 140 €/t por servicio para recogidas pequeñas.", "empresa_id": 3, "negocio_id": 2, "autor": "javier", "fecha": 2 },
+    { "id": 3, "tipo": "llamada", "texto": "Luis confirma unas 3 t mensuales de material. Pide propuesta con certificado de gestión.", "empresa_id": 3, "negocio_id": 2, "autor": "ceo", "fecha": 1500 },
+    { "id": 4, "tipo": "email", "texto": "Enviado dossier de destrucción certificada de datos.", "empresa_id": 4, "negocio_id": 4, "autor": "marco", "fecha": 150 },
+    { "id": 5, "tipo": "reunion", "texto": "Revisión anual con Ana. Satisfechos con el servicio; quieren mejorar los plazos de recogida.", "empresa_id": 1, "negocio_id": 5, "autor": "ceo", "fecha": 600 },
+    { "id": 6, "tipo": "nota", "texto": "Cliente sin servicios desde hace más de un año. Propuesta de reactivación de Marco.", "empresa_id": 5, "negocio_id": 6, "autor": "marco", "fecha": 30 },
+    { "id": 7, "tipo": "llamada", "texto": "Primera llamada con Carlos: interesados, pero quieren saber si damos certificado de trazabilidad.", "empresa_id": 6, "negocio_id": 3, "autor": "ceo", "fecha": 5000 },
+    { "id": 8, "tipo": "nota", "texto": "Contrato firmado. Primera recogida programada.", "empresa_id": 9, "negocio_id": 8, "autor": "ceo", "fecha": 4000 },
+    { "id": 9, "tipo": "nota", "texto": "Relación activa: compran el cobre recuperado.", "empresa_id": 8, "autor": "ceo", "fecha": 9000 },
+    { "id": 10, "tipo": "nota", "texto": "Último servicio facturado.", "empresa_id": 5, "autor": "hubspot", "fecha": 600000 }
+  ]
+}

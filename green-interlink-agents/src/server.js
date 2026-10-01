@@ -2,7 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import express from "express";
-import { Store, ETAPAS } from "./store.js";
+import { Store } from "./store.js";
+import { Crm } from "./crm.js";
+import { importarHubspot } from "./hubspot.js";
 import { EjecutorAgentes } from "./agentes.js";
 import { Orquestador, LIMITES } from "./orquestador.js";
 import { Equipo } from "./equipo.js";
@@ -11,10 +13,11 @@ const raiz = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const equipo = new Equipo(path.join(raiz, "config/equipo.json"));
 const empresa = fs.readFileSync(path.join(raiz, "config/empresa.md"), "utf8");
 const store = new Store(path.join(raiz, "data/estado.json"));
+const crm = new Crm(path.join(raiz, "data/crm.db"));
 
 const tieneCredenciales = Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
 if (tieneCredenciales) {
-  const ejecutor = new EjecutorAgentes({ equipo, empresa, store });
+  const ejecutor = new EjecutorAgentes({ equipo, empresa, store, crm });
   new Orquestador({ equipo, store, ejecutor }).iniciar();
 } else {
   console.warn("Sin ANTHROPIC_API_KEY: la oficina se abre en modo vista, sin que los agentes trabajen.");
@@ -156,14 +159,95 @@ app.post("/api/borradores/:id", (req, res) => {
   res.json(b);
 });
 
-app.post("/api/oportunidades/:id", (req, res) => {
-  const { etapa } = req.body ?? {};
-  if (!ETAPAS.includes(etapa)) return malo(res, "Etapa no válida.");
-  const op = store.estado.oportunidades.find((o) => o.id === req.params.id);
-  if (!op) return malo(res, "No existe esa oportunidad.");
-  store.guardarOportunidad({ id: op.id, etapa }, op.responsable);
-  store.registrar("ceo", `movió ${op.empresa} a «${etapa}»`);
-  res.json(op);
+// ---- CRM ----
+const crmRuta = (fn) => (req, res) => {
+  try {
+    const r = fn(req);
+    if (r === null) return res.status(404).json({ error: "No encontrado." });
+    res.json(r);
+  } catch (err) {
+    malo(res, err.message);
+  }
+};
+const numero = (v, def) => (Number.isFinite(Number(v)) && v !== "" && v !== undefined ? Number(v) : def);
+
+app.get("/api/crm/resumen", crmRuta(() => ({ resumen: crm.resumen(), negocios: crm.tablero() })));
+app.get(
+  "/api/crm/empresas",
+  crmRuta((req) =>
+    crm.buscarEmpresas({
+      q: req.query.q ?? "",
+      tipo: req.query.tipo ?? "",
+      sinActividadDias: numero(req.query.sinActividad, 0),
+      limite: Math.min(numero(req.query.limite, 50), 200),
+      desplazamiento: numero(req.query.desde, 0),
+    }),
+  ),
+);
+app.get("/api/crm/empresas/:id", crmRuta((req) => crm.fichaEmpresa(req.params.id)));
+app.post("/api/crm/empresas", crmRuta((req) => crm.guardarEmpresa({ ...req.body, id: undefined })));
+app.put("/api/crm/empresas/:id", crmRuta((req) => crm.guardarEmpresa({ ...req.body, id: req.params.id })));
+app.get(
+  "/api/crm/contactos",
+  crmRuta((req) =>
+    crm.buscarContactos({
+      q: req.query.q ?? "",
+      empresaId: req.query.empresa ?? null,
+      limite: Math.min(numero(req.query.limite, 50), 200),
+      desplazamiento: numero(req.query.desde, 0),
+    }),
+  ),
+);
+app.post("/api/crm/contactos", crmRuta((req) => crm.guardarContacto({ ...req.body, id: undefined })));
+app.put("/api/crm/contactos/:id", crmRuta((req) => crm.guardarContacto({ ...req.body, id: req.params.id })));
+app.get("/api/crm/negocios/:id", crmRuta((req) => crm.fichaNegocio(req.params.id)));
+app.post(
+  "/api/crm/negocios",
+  crmRuta((req) => {
+    const n = crm.guardarNegocio({ ...req.body, id: undefined, responsable: req.body?.responsable || "ceo" });
+    store.registrar("ceo", `abrió el negocio «${n.titulo}»`);
+    return n;
+  }),
+);
+app.put(
+  "/api/crm/negocios/:id",
+  crmRuta((req) => {
+    const antes = crm.negocio(req.params.id);
+    const n = crm.guardarNegocio({ ...req.body, id: req.params.id });
+    if (antes && antes.etapa !== n.etapa) {
+      const verbo = { ganado: "ganó", perdido: "dio por perdido" }[n.etapa];
+      store.registrar("ceo", verbo ? `${verbo} el negocio «${n.titulo}»` : `movió «${n.titulo}» a ${n.etapa}`);
+      if (verbo && n.responsable && n.responsable !== "ceo" && equipo.existe(n.responsable)) {
+        store.enviarMensaje({
+          de: "ceo",
+          para: n.responsable,
+          texto: `El negocio «${n.titulo}» está ${n.etapa}.${n.motivo_cierre ? ` Motivo: ${n.motivo_cierre}` : ""}`,
+        });
+      }
+    }
+    return n;
+  }),
+);
+app.post("/api/crm/actividades", crmRuta((req) => crm.registrarActividad({ ...req.body, autor: "ceo" })));
+
+// Importación desde HubSpot en segundo plano, con progreso consultable.
+let importacion = { estado: "inactiva" };
+app.get("/api/crm/importacion", (_req, res) => res.json({ ...importacion, tokenConfigurado: Boolean(process.env.HUBSPOT_TOKEN) }));
+app.post("/api/crm/importacion", (_req, res) => {
+  if (!process.env.HUBSPOT_TOKEN) return malo(res, "Añade HUBSPOT_TOKEN al archivo .env y reinicia la oficina.");
+  if (importacion.estado === "en_curso") return malo(res, "Ya hay una importación en marcha.");
+  importacion = { estado: "en_curso", fase: "Conectando con HubSpot" };
+  store.registrar("ceo", "inició la importación desde HubSpot");
+  importarHubspot({ crm, token: process.env.HUBSPOT_TOKEN, progreso: (p) => (importacion = { estado: "en_curso", ...p }) })
+    .then((c) => {
+      importacion = { estado: "terminada", ...c };
+      store.registrar("ceo", `importó de HubSpot ${c.empresas} empresas, ${c.contactos} contactos, ${c.negocios} negocios y ${c.notas} notas`);
+    })
+    .catch((err) => {
+      importacion = { estado: "error", error: err.message };
+      store.registrar("ceo", `la importación desde HubSpot falló: ${err.message}`);
+    });
+  res.json(importacion);
 });
 
 app.post("/api/pausa", (req, res) => {
@@ -178,9 +262,11 @@ app.get("/api/eventos", (req, res) => {
   res.flushHeaders();
   const avisar = () => res.write("event: cambio\ndata: {}\n\n");
   store.on("cambio", avisar);
+  crm.on("cambio", avisar);
   const latido = setInterval(() => res.write(": ok\n\n"), 25_000);
   req.on("close", () => {
     store.off("cambio", avisar);
+    crm.off("cambio", avisar);
     clearInterval(latido);
   });
 });

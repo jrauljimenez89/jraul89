@@ -11,7 +11,6 @@ const ESTADO_VACIO = {
   mensajes: [],
   aprobaciones: [],
   borradores: [],
-  oportunidades: [],
   actividad: [],
   agentes: {},
   consumo: { fecha: "", turnos: 0, tokensEntrada: 0, tokensSalida: 0 },
@@ -27,7 +26,6 @@ const NOMBRE_CANAL = {
   otro: "texto",
 };
 
-export const ETAPAS = ["prospecto", "contactado", "reunion", "propuesta", "negociacion", "ganada", "perdida"];
 export const ESTADOS_TAREA = ["pendiente", "en_curso", "esperando_aprobacion", "bloqueada", "hecha"];
 
 export class Store extends EventEmitter {
@@ -168,22 +166,6 @@ export class Store extends EventEmitter {
     b.estado = estado;
     this.cambio();
     return b;
-  }
-
-  // ---- Pipeline de oportunidades ----
-  guardarOportunidad(datos, responsable) {
-    let op = datos.id ? this.estado.oportunidades.find((o) => o.id === datos.id) : null;
-    if (!op) {
-      op = { id: this.nuevoId("O"), responsable, creada: this.ahora() };
-      this.estado.oportunidades.unshift(op);
-      this.registrar(responsable, `añadió la oportunidad ${datos.empresa ?? ""} al pipeline`);
-    }
-    for (const campo of ["empresa", "contacto", "necesidad", "etapa", "valorEstimado", "notas", "fuente"]) {
-      if (datos[campo] !== undefined) op[campo] = datos[campo];
-    }
-    op.actualizada = this.ahora();
-    this.cambio();
-    return op;
   }
 
   // ---- Control de consumo ----

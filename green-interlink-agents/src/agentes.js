@@ -1,7 +1,8 @@
 // Ejecuta un "turno de trabajo" de un agente: le da contexto, deja que use sus
 // herramientas (mensajes, tareas, borradores, pipeline...) y aplica el resultado al estado.
 import Anthropic from "@anthropic-ai/sdk";
-import { ETAPAS, ESTADOS_TAREA } from "./store.js";
+import { ESTADOS_TAREA } from "./store.js";
+import { ETAPAS_NEGOCIO, ETAPAS_ABIERTAS, TIPOS_EMPRESA, TIPOS_ACTIVIDAD, normalizar } from "./crm.js";
 
 const MODELO = process.env.MODELO || "claude-opus-5-5";
 const MAX_ITERACIONES = Number(process.env.MAX_ITERACIONES_POR_TURNO || 12);
@@ -82,22 +83,100 @@ const HERRAMIENTAS = [
     },
   },
   {
-    name: "guardar_oportunidad",
+    name: "crm_buscar",
     description:
-      "Crea o actualiza una oportunidad comercial en el pipeline. Para actualizar, indica su id. Registra solo empresas y datos verificados.",
+      "Busca en el CRM de Green Interlink. Devuelve como máximo 25 resultados con su id. Úsalo antes de crear nada para no duplicar empresas o contactos.",
     input_schema: {
       type: "object",
       properties: {
-        id: { type: "string", description: "id de la oportunidad existente (vacío para crear una nueva)" },
-        empresa: { type: "string" },
-        contacto: { type: "string", description: "Nombre y cargo, o 'por identificar'" },
-        necesidad: { type: "string" },
-        etapa: { type: "string", enum: ETAPAS },
-        valorEstimado: { type: "number", description: "Valor anual estimado en euros" },
-        fuente: { type: "string", description: "De dónde sale la información (URL, recomendación...)" },
+        que: { type: "string", enum: ["empresas", "contactos", "negocios"] },
+        texto: { type: "string", description: "Palabras a buscar (nombre, sector, ciudad, cargo, email...)" },
+        tipo_empresa: { type: "string", enum: TIPOS_EMPRESA, description: "Solo para empresas" },
+        sin_actividad_dias: { type: "number", description: "Solo para empresas: sin ninguna actividad en este número de días (para reactivar clientes dormidos)" },
+        etapa: { type: "string", enum: ETAPAS_NEGOCIO, description: "Solo para negocios" },
+      },
+      required: ["que"],
+    },
+  },
+  {
+    name: "crm_ficha",
+    description: "Devuelve la ficha completa de una empresa (contactos, negocios e historial) o de un negocio.",
+    input_schema: {
+      type: "object",
+      properties: {
+        empresa_id: { type: "number" },
+        negocio_id: { type: "number" },
+      },
+    },
+  },
+  {
+    name: "crm_guardar_empresa",
+    description: "Crea o actualiza una empresa en el CRM (indica id para actualizar). Registra solo datos verificados y su fuente en notas.",
+    input_schema: {
+      type: "object",
+      properties: {
+        id: { type: "number" },
+        nombre: { type: "string" },
+        tipo: { type: "string", enum: TIPOS_EMPRESA },
+        sector: { type: "string" },
+        ciudad: { type: "string" },
+        pais: { type: "string" },
+        web: { type: "string" },
+        telefono: { type: "string" },
         notas: { type: "string" },
       },
-      required: ["empresa", "etapa"],
+    },
+  },
+  {
+    name: "crm_guardar_contacto",
+    description: "Crea o actualiza un contacto (indica id para actualizar). Solo datos profesionales públicos o facilitados por el propio contacto.",
+    input_schema: {
+      type: "object",
+      properties: {
+        id: { type: "number" },
+        empresa_id: { type: "number" },
+        nombre: { type: "string" },
+        apellidos: { type: "string" },
+        cargo: { type: "string" },
+        email: { type: "string" },
+        telefono: { type: "string" },
+        linkedin: { type: "string", description: "URL del perfil público" },
+        notas: { type: "string" },
+      },
+    },
+  },
+  {
+    name: "crm_guardar_negocio",
+    description:
+      "Crea o actualiza un negocio (indica id para actualizar). Mantén siempre un próximo paso con fecha. Solo el CEO marca un negocio como ganado o perdido: para eso, solicita aprobación.",
+    input_schema: {
+      type: "object",
+      properties: {
+        id: { type: "number" },
+        titulo: { type: "string", description: "Qué se vende y a quién, p. ej. 'Recogida trimestral de equipos de red'" },
+        empresa_id: { type: "number" },
+        contacto_id: { type: "number" },
+        etapa: { type: "string", enum: ETAPAS_ABIERTAS },
+        valor: { type: "number", description: "Valor anual estimado en euros" },
+        cierre_previsto: { type: "string", description: "AAAA-MM-DD" },
+        proximo_paso: { type: "string" },
+        proximo_paso_fecha: { type: "string", description: "AAAA-MM-DD" },
+      },
+    },
+  },
+  {
+    name: "crm_registrar_actividad",
+    description: "Añade al historial de una empresa, contacto o negocio una nota, llamada, email, reunión, mensaje de LinkedIn o tarea.",
+    input_schema: {
+      type: "object",
+      properties: {
+        tipo: { type: "string", enum: TIPOS_ACTIVIDAD },
+        texto: { type: "string" },
+        empresa_id: { type: "number" },
+        contacto_id: { type: "number" },
+        negocio_id: { type: "number" },
+      },
+      required: ["tipo", "texto"],
     },
   },
   {
@@ -155,6 +234,8 @@ Cómo trabajas:
 - Todo lo que salga al exterior (mensajes a contactos, publicaciones, ofertas, precios, cambios en la web) se prepara como borrador o se somete a aprobación. El CEO es quien envía y publica.
 - Eres una IA y lo dices con naturalidad si hace falta. No te haces pasar por una persona real ni creas cuentas en redes sociales.
 - No inventes empresas, contactos, cifras ni certificaciones. Si usas búsqueda web, cita la fuente.
+- El CRM es la memoria comercial de la empresa: búscalo antes de investigar o escribir a nadie, no dupliques registros y anota cada contacto, llamada o mensaje en el historial. Todo negocio abierto debe tener un próximo paso con fecha.
+- Nunca prepares comunicaciones para contactos marcados como "NO CONTACTAR".
 - Si detectas trabajo recurrente que nadie del equipo cubre, puedes proponer al CEO un nuevo agente con proponer_agente.
 - Respeta las condiciones de uso de LinkedIn, Instagram y demás plataformas: nada de scraping ni envíos masivos.
 
@@ -162,7 +243,7 @@ Memoria de empresa:
 ${empresa}`;
 }
 
-function contextoTurno(agente, equipo, store, mensajes, tarea) {
+function contextoTurno(agente, equipo, store, crm, mensajes, tarea) {
   const e = store.estado;
   const partes = [`Fecha y hora: ${new Date().toLocaleString("es-ES")}`];
 
@@ -192,13 +273,21 @@ function contextoTurno(agente, equipo, store, mensajes, tarea) {
     );
   }
 
-  if (["ventas", "direccion"].includes(agente.departamento) && e.oportunidades.length) {
+  if (crm && ["ventas", "direccion", "finanzas"].includes(agente.departamento)) {
+    const r = crm.resumen();
+    const hoy = new Date().toISOString().slice(0, 10);
+    const urgentes = crm
+      .tablero()
+      .filter((n) => ETAPAS_ABIERTAS.includes(n.etapa) && (!n.proximo_paso_fecha || n.proximo_paso_fecha <= hoy))
+      .slice(0, 15);
     partes.push(
-      "Pipeline actual:\n" +
-        e.oportunidades
-          .slice(0, 30)
-          .map((o) => `- [${o.id}] ${o.empresa} · ${o.etapa} · ${o.valorEstimado ?? "?"} € · ${o.necesidad ?? ""}`)
-          .join("\n"),
+      `CRM: ${r.empresas} empresas, ${r.contactos} contactos, ${r.abiertos} negocios abiertos por ${r.valorAbierto} € (ponderado ${r.valorPonderado} €), ${r.ganadosMes} ganados este mes, ${r.pasosVencidos} con el próximo paso vencido y ${r.sinProximoPaso} sin próximo paso.` +
+        (urgentes.length
+          ? "\nNegocios que necesitan atención:\n" +
+            urgentes
+              .map((n) => `- [negocio ${n.id}] ${n.titulo} · ${n.empresa ?? "sin empresa"} · ${n.etapa} · ${n.valor ?? "?"} € · próximo paso: ${n.proximo_paso ?? "ninguno"} (${n.proximo_paso_fecha ?? "sin fecha"})`)
+              .join("\n")
+          : ""),
     );
   }
 
@@ -210,7 +299,7 @@ function contextoTurno(agente, equipo, store, mensajes, tarea) {
   return partes.join("\n\n");
 }
 
-function ejecutarHerramienta(nombre, input, agente, equipo, store, tarea) {
+function ejecutarHerramienta(nombre, input, { agente, equipo, store, crm, tarea }) {
   const existe = (id) => equipo.existe(id);
   const texto = (v) => (typeof v === "string" ? v.trim() : "");
 
@@ -286,18 +375,69 @@ function ejecutarHerramienta(nombre, input, agente, equipo, store, tarea) {
       });
       return { ok: true, id: ap.id, nota: "La propuesta está en la bandeja del CEO." };
     }
-    case "guardar_oportunidad": {
-      if (input.etapa && !ETAPAS.includes(input.etapa)) return { error: `Etapa no válida: ${input.etapa}` };
-      const op = store.guardarOportunidad(input, agente.id);
-      return { ok: true, id: op.id };
+    case "crm_buscar":
+      return crmBuscar(crm, input);
+    case "crm_ficha": {
+      if (input.negocio_id) return crm.fichaNegocio(input.negocio_id) ?? { error: `No existe el negocio ${input.negocio_id}.` };
+      if (!input.empresa_id) return { error: "Indica empresa_id o negocio_id." };
+      const f = crm.fichaEmpresa(input.empresa_id);
+      if (!f) return { error: `No existe la empresa ${input.empresa_id}.` };
+      return { ...f, contactos: f.contactos.map(avisoBaja), actividades: f.actividades.slice(0, 25) };
+    }
+    case "crm_guardar_empresa": {
+      const e = crm.guardarEmpresa({ ...input, ...(input.id ? {} : { responsable: agente.id }) }, agente.id);
+      store.registrar(agente.id, `${input.id ? "actualizó" : "añadió"} la empresa ${e.nombre} en el CRM`);
+      return { ok: true, id: e.id };
+    }
+    case "crm_guardar_contacto": {
+      if (input.consentimiento) delete input.consentimiento; // el estado de baja solo lo cambia el CEO
+      const c = crm.guardarContacto(input);
+      return { ok: true, id: c.id };
+    }
+    case "crm_guardar_negocio": {
+      if (input.etapa && !ETAPAS_ABIERTAS.includes(input.etapa)) {
+        return { error: "Solo el CEO puede marcar un negocio como ganado o perdido. Solicita su aprobación." };
+      }
+      const actual = input.id ? crm.negocio(input.id) : null;
+      if (actual && !ETAPAS_ABIERTAS.includes(actual.etapa)) return { error: "Ese negocio ya está cerrado." };
+      const n = crm.guardarNegocio({ ...input, ...(input.id ? {} : { responsable: agente.id }) }, agente.id);
+      store.registrar(agente.id, `${input.id ? "actualizó" : "abrió"} el negocio «${n.titulo}»${n.empresa ? ` con ${n.empresa}` : ""}`);
+      return { ok: true, id: n.id };
+    }
+    case "crm_registrar_actividad": {
+      const a = crm.registrarActividad({ ...input, autor: agente.id });
+      return { ok: true, id: a.id };
     }
     default:
       return { error: `Herramienta desconocida: ${nombre}` };
   }
 }
 
+function avisoBaja(c) {
+  return c.consentimiento === "baja" ? { ...c, aviso: "NO CONTACTAR: se dio de baja de comunicaciones" } : c;
+}
+
+function crmBuscar(crm, input) {
+  const texto = input.texto ?? "";
+  if (input.que === "contactos") {
+    const r = crm.buscarContactos({ q: texto, limite: 25 });
+    return { total: r.total, resultados: r.filas.map(avisoBaja) };
+  }
+  if (input.que === "negocios") {
+    const palabras = normalizar(texto).split(/\s+/).filter(Boolean);
+    const filas = crm
+      .tablero()
+      .filter((n) => !input.etapa || n.etapa === input.etapa)
+      .filter((n) => palabras.every((p) => normalizar(`${n.titulo} ${n.empresa ?? ""}`).includes(p)));
+    return { total: filas.length, resultados: filas.slice(0, 25), nota: "Incluye negocios abiertos y cerrados en los últimos 90 días." };
+  }
+  const r = crm.buscarEmpresas({ q: texto, tipo: input.tipo_empresa ?? "", sinActividadDias: input.sin_actividad_dias ?? 0, limite: 25 });
+  return { total: r.total, resultados: r.filas };
+}
+
 export class EjecutorAgentes {
-  constructor({ equipo, empresa, store }) {
+  constructor({ equipo, empresa, store, crm }) {
+    this.crm = crm;
     this.equipo = equipo;
     this.empresa = empresa;
     this.store = store;
@@ -343,7 +483,7 @@ export class EjecutorAgentes {
     if (mensajes.length) store.marcarLeidos(mensajes.map((m) => m.id));
     if (tarea && tarea.estado === "pendiente") store.actualizarTarea(tarea.id, { estado: "en_curso" });
 
-    const messages = [{ role: "user", content: contextoTurno(agente, equipo, store, mensajes, tarea) }];
+    const messages = [{ role: "user", content: contextoTurno(agente, equipo, store, this.crm, mensajes, tarea) }];
     let resumen = "";
 
     try {
@@ -367,7 +507,7 @@ export class EjecutorAgentes {
         const resultados = usos.map((uso) => {
           let resultado;
           try {
-            resultado = ejecutarHerramienta(uso.name, uso.input ?? {}, agente, equipo, store, tarea);
+            resultado = ejecutarHerramienta(uso.name, uso.input ?? {}, { agente, equipo, store, crm: this.crm, tarea });
           } catch (err) {
             resultado = { error: String(err?.message ?? err) };
           }

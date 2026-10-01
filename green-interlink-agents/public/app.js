@@ -171,7 +171,6 @@ function arrancarDemo() {
   ajustar(e.mensajes, ["fecha"]);
   ajustar(e.aprobaciones, ["fecha"]);
   ajustar(e.borradores, ["fecha"]);
-  ajustar(e.oportunidades, ["creada", "actualizada"]);
   ajustar(e.actividad, ["fecha"]);
   for (const id in e.agentes) ajustar([e.agentes[id]], ["desde"]);
   e.consumo.fecha = new Date().toISOString().slice(0, 10);
@@ -204,8 +203,6 @@ function demoApi(metodo, ruta, c) {
     log(`${c.decision === "aprobada" ? "aprobó" : "rechazó"} «${ap.titulo}»`);
   } else if (recurso === "borradores") {
     e.borradores.find((b) => b.id === rid).estado = c.estado;
-  } else if (recurso === "oportunidades") {
-    e.oportunidades.find((o) => o.id === rid).etapa = c.etapa;
   } else if (recurso === "pausa") {
     e.pausado = c.pausado;
   } else if (recurso === "departamentos") {
@@ -335,37 +332,6 @@ function renderTareas() {
   return `<div class="acciones" style="margin:0 0 14px"><button class="boton principal" data-accion="nueva-tarea">Asignar tarea</button></div><div class="tablero">${cols}</div>`;
 }
 
-// ---------- Pipeline ----------
-function renderPipeline() {
-  const ops = datos.estado.oportunidades;
-  const abiertas = ops.filter((o) => !["ganada", "perdida"].includes(o.etapa));
-  const total = abiertas.reduce((s, o) => s + (o.valorEstimado ?? 0), 0);
-  const cols = ETAPAS.map(([id, titulo]) => {
-    const lista = ops.filter((o) => o.etapa === id);
-    const suma = lista.reduce((s, o) => s + (o.valorEstimado ?? 0), 0);
-    return `<section class="columna">
-      <div class="columna-cabecera"><h3>${titulo}</h3><span class="dato tenue">${lista.length} · ${euros(suma)}</span></div>
-      <div class="tarjetas">${lista
-        .map(
-          (o) => `<article class="tarjeta">
-            <h4>${esc(o.empresa)}</h4>
-            <p class="dato">${euros(o.valorEstimado)} / año</p>
-            ${o.contacto ? `<p>${esc(o.contacto)}</p>` : ""}
-            ${o.necesidad ? `<p class="tenue">${esc(o.necesidad)}</p>` : ""}
-            ${o.notas ? `<p class="resultado">${esc(o.notas)}</p>` : ""}
-            <div class="pie">${personaMini(o.responsable)}
-              <select class="cambiar-etapa" data-op="${esc(o.id)}" aria-label="Mover ${esc(o.empresa)} de etapa" style="width:auto">
-                ${ETAPAS.map(([v, l]) => `<option value="${v}" ${v === o.etapa ? "selected" : ""}>${l}</option>`).join("")}
-              </select>
-            </div>
-          </article>`,
-        )
-        .join("")}</div>
-    </section>`;
-  }).join("");
-  return `<p class="tenue" style="margin:0 0 14px">${abiertas.length} oportunidades abiertas · <strong class="dato" style="font-size:14px">${euros(total)}</strong> de valor anual estimado</p><div class="tablero">${cols}</div>`;
-}
-
 // ---------- Bandeja del CEO ----------
 function renderBandeja() {
   const e = datos.estado;
@@ -447,7 +413,7 @@ function render() {
     main.innerHTML = "";
     return;
   }
-  const vistas = { oficina: renderOficina, tareas: renderTareas, pipeline: renderPipeline, bandeja: renderBandeja, actividad: renderActividad };
+  const vistas = { oficina: renderOficina, tareas: renderTareas, crm: renderCrm, bandeja: renderBandeja, actividad: renderActividad };
   // Conserva lo que el CEO esté escribiendo mientras llegan cambios en tiempo real.
   const enfocado = document.activeElement;
   if (enfocado && main.contains(enfocado) && ["INPUT", "TEXTAREA", "SELECT"].includes(enfocado.tagName)) return;
@@ -668,6 +634,7 @@ document.addEventListener("click", async (ev) => {
       pestana = t.dataset.pestana;
       history.replaceState(null, "", `#${pestana}`);
       render();
+      if (pestana === "crm") cargarCrm();
     } else if (t.dataset.agente) abrirAgente(t.dataset.agente);
     else if (t.hasAttribute("data-cerrar")) t.closest("dialog").close();
     else if (t.dataset.editar) abrirFormAgente(t.dataset.editar);
@@ -695,14 +662,6 @@ document.addEventListener("click", async (ev) => {
   }
 });
 
-document.addEventListener("change", async (ev) => {
-  if (ev.target.matches(".cambiar-etapa")) {
-    await api("POST", `/api/oportunidades/${ev.target.dataset.op}`, { etapa: ev.target.value });
-    ev.target.blur();
-    render();
-  }
-});
-
 $("#dialogo-agente").addEventListener("close", () => render());
 
 // Avisos en tiempo real desde el servidor.
@@ -712,9 +671,13 @@ function escuchar() {
   const es = new EventSource("/api/eventos");
   es.addEventListener("cambio", () => {
     clearTimeout(espera);
-    espera = setTimeout(cargar, 250);
+    espera = setTimeout(() => {
+      cargar();
+      if (pestana === "crm") cargarCrm();
+    }, 250);
   });
 }
 
-cargar().then(escuchar);
+// Arranca cuando se han cargado todos los scripts (crm.js incluido).
+window.addEventListener("DOMContentLoaded", () => cargar().then(escuchar));
 setInterval(() => datos.modo !== "demo" && render(), 60_000);

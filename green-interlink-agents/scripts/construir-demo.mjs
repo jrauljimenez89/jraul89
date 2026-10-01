@@ -10,6 +10,7 @@ const leer = (r) => fs.readFileSync(path.join(raiz, r), "utf8");
 const equipo = JSON.parse(leer("config/equipo.json"));
 equipo.agentes = equipo.agentes.filter((a) => a.activo !== false);
 const estado = JSON.parse(leer("demo/estado-ejemplo.json"));
+const crm = JSON.parse(leer("demo/crm-ejemplo.json"));
 const html = leer("public/index.html");
 
 const simbolo = "data:image/png;base64," + fs.readFileSync(path.join(raiz, "public/marca/simbolo.png")).toString("base64");
@@ -17,7 +18,7 @@ const cuerpo = html
   .slice(html.indexOf("<header"), html.indexOf('<script src="app.js">'))
   .replaceAll('src="marca/simbolo.png"', `src="${simbolo}"`);
 const fuentes = html.match(/<link rel="stylesheet" href="https:\/\/fonts[^>]+>/)[0];
-const datos = JSON.stringify({ equipo, estado }).replace(/</g, "\\u003c");
+const datos = JSON.stringify({ equipo, estado, crm }).replace(/</g, "\\u003c");
 
 const salida = `<title>Oficina Green Interlink</title>
 ${fuentes}
@@ -28,6 +29,9 @@ ${cuerpo}
 <script>window.DEMO = ${datos};</script>
 <script>
 ${leer("public/app.js")}
+</script>
+<script>
+${leer("public/crm.js")}
 </script>
 `;
 fs.writeFileSync(path.join(raiz, "demo/oficina-demo.html"), salida);

@@ -58,12 +58,12 @@ Los datos se guardan en `data/crm.db` (SQLite), que aguanta decenas de miles de 
 
 Se hace una vez y funciona con el plan gratuito de HubSpot. Trae empresas, contactos (con su estado de baja), negocios y notas.
 
-1. En HubSpot: **Configuración → Integraciones → Aplicaciones privadas → Crear una aplicación privada**.
-2. En «Permisos», marca solo lectura: `crm.objects.companies.read`, `crm.objects.contacts.read` y `crm.objects.deals.read`.
-3. Copia el token y pégalo en `.env` como `HUBSPOT_TOKEN=...`.
+1. En HubSpot: **Configuración → Integraciones → Aplicaciones privadas**, y al crear elige **«Use Service Keys instead»** (clave de servicio). Es la opción que HubSpot recomienda; las «legacy private apps» también funcionan, pero ya no reciben mejoras.
+2. Ponle un nombre (por ejemplo «Oficina Green Interlink») y marca solo permisos de lectura: `crm.objects.companies.read`, `crm.objects.contacts.read` y `crm.objects.deals.read`.
+3. Copia la clave y pégala en `.env` como `HUBSPOT_TOKEN=...`. Trátala como una contraseña: no la compartas ni la subas a GitHub (el archivo `.env` ya está excluido).
 4. Ejecuta `npm run importar-hubspot`, o pulsa «Importar desde HubSpot» en la pestaña CRM.
 
-Repetir la importación no duplica nada: actualiza lo que ya existe. Las etapas de los negocios de HubSpot se traducen a las nuestras según su probabilidad. Una vez importada la base, el CRM de la oficina pasa a ser el de referencia y puedes borrar el token de HubSpot.
+Repetir la importación no duplica nada: actualiza lo que ya existe. Las etapas de los negocios de HubSpot se traducen a las nuestras según su probabilidad. Una vez importada la base, el CRM de la oficina pasa a ser el de referencia: borra la clave de servicio en HubSpot y quítala del `.env`.
 
 ## Hacer crecer el equipo
 

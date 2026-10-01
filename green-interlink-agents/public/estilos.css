@@ -1,17 +1,18 @@
 /* Planta de oficina dibujada como un plano técnico: salas con muros finos y código de sala,
-   puestos con cara, nombre y extensión telefónica. Cobre (cable reciclado) como acento, verde fibra como secundario. */
+   puestos con cara, nombre y extensión telefónica. Colores de la marca Green Interlink:
+   verde hoja como acento (--cobre) y azul marino del logotipo como secundario (--fibra). */
 :root {
-  --suelo: #e9eee9;
+  --suelo: #ebefe9;
   --papel: #f7f9f6;
   --papel-2: #eef2ee;
   --tinta: #16201b;
   --tenue: #5a6a62;
   --linea: #c3cec7;
   --muro: #9aaba1;
-  --cobre: #a8561f;
-  --cobre-suave: #f3e3d6;
-  --fibra: #1f6b5a;
-  --fibra-suave: #dcebe5;
+  --cobre: #2e7d32;
+  --cobre-suave: #e2f0d6;
+  --fibra: #1b2a47;
+  --fibra-suave: #dfe5ef;
   --ok: #2d7a4c;
   --aviso: #9a6512;
   --alerta: #ae3b2b;
@@ -20,6 +21,7 @@
   --f-texto: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
   --f-dato: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
   --radio: 6px;
+  --marca-verde: #256b2e;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -30,14 +32,15 @@
     --tenue: #93a39a;
     --linea: #2c3833;
     --muro: #44544c;
-    --cobre: #df8f58;
-    --cobre-suave: #3a2a1f;
-    --fibra: #5fb89e;
-    --fibra-suave: #1b322b;
+    --cobre: #8cc63f;
+    --cobre-suave: #243320;
+    --fibra: #a9bde3;
+    --fibra-suave: #1d2638;
     --ok: #6cc08e;
     --aviso: #d9a548;
     --alerta: #e57a69;
     --sombra: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 18px rgb(0 0 0 / 0.25);
+    --marca-verde: #8cc63f;
     color-scheme: dark;
   }
 }
@@ -49,10 +52,10 @@
   --tenue: #93a39a;
   --linea: #2c3833;
   --muro: #44544c;
-  --cobre: #df8f58;
-  --cobre-suave: #3a2a1f;
-  --fibra: #5fb89e;
-  --fibra-suave: #1b322b;
+  --cobre: #8cc63f;
+  --cobre-suave: #243320;
+  --fibra: #a9bde3;
+  --fibra-suave: #1d2638;
   --ok: #6cc08e;
   --aviso: #d9a548;
   --alerta: #e57a69;
@@ -90,7 +93,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .barra-fila { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; max-width: 1360px; margin-inline: auto; }
 .marca { display: flex; align-items: baseline; gap: 10px; margin-right: auto; }
 .marca h1 { font-size: 20px; font-weight: 800; font-stretch: 112%; letter-spacing: -0.01em; }
-.marca h1 span { color: var(--cobre); }
+.marca { align-items: center; }
+.marca .simbolo { width: 34px; height: 34px; border-radius: 50%; display: block; }
+.marca h1 .green { color: var(--fibra); }
+.marca h1 .interlink { color: var(--marca-verde); }
 .estado-oficina { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .pastilla {
   display: inline-flex; align-items: center; gap: 6px;

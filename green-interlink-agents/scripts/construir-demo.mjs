@@ -12,7 +12,10 @@ equipo.agentes = equipo.agentes.filter((a) => a.activo !== false);
 const estado = JSON.parse(leer("demo/estado-ejemplo.json"));
 const html = leer("public/index.html");
 
-const cuerpo = html.slice(html.indexOf("<header"), html.indexOf('<script src="app.js">'));
+const simbolo = "data:image/png;base64," + fs.readFileSync(path.join(raiz, "public/marca/simbolo.png")).toString("base64");
+const cuerpo = html
+  .slice(html.indexOf("<header"), html.indexOf('<script src="app.js">'))
+  .replaceAll('src="marca/simbolo.png"', `src="${simbolo}"`);
 const fuentes = html.match(/<link rel="stylesheet" href="https:\/\/fonts[^>]+>/)[0];
 const datos = JSON.stringify({ equipo, estado }).replace(/</g, "\\u003c");
 

@@ -45,11 +45,6 @@
       "id": "mejora",
       "nombre": "Mejora continua",
       "sala": "S-08"
-    },
-    {
-      "id": "compras-y-logistica",
-      "nombre": "Compras y logística",
-      "sala": "S-09"
     }
   ],
   "agentes": [
@@ -274,26 +269,6 @@
         "gafas": false,
         "barba": true
       }
-    },
-    {
-      "id": "laura",
-      "nombre": "Laura Gil",
-      "cargo": "Compras y logística",
-      "departamento": "compras-y-logistica",
-      "reportaA": "carmen",
-      "avatar": {
-        "pelo": "larga",
-        "piel": "#E8B994",
-        "colorPelo": "#4A2C1C"
-      },
-      "responsabilidades": [
-        "Negociar transporte",
-        "Vender cobre"
-      ],
-      "esfuerzo": "medium",
-      "personalidad": "Profesional, claro y orientado a resultados.",
-      "extension": "901",
-      "activo": false
     }
   ]
 }

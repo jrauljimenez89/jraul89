@@ -271,5 +271,13 @@ app.get("/api/eventos", (req, res) => {
   });
 });
 
-const puerto = Number(process.env.PUERTO || 3000);
-app.listen(puerto, () => console.log(`Oficina de Green Interlink en http://localhost:${puerto}`));
+const puerto = Number(process.env.PUERTO || 4000);
+// Escucha en 127.0.0.1 para no chocar con otros proyectos que usen "localhost" en el mismo puerto.
+const servidor = app.listen(puerto, "127.0.0.1", () => console.log(`Oficina de Green Interlink en http://localhost:${puerto}`));
+servidor.on("error", (err) => {
+  if (err.code === "EADDRINUSE") {
+    console.error(`El puerto ${puerto} ya lo está usando otro programa. Cambia PUERTO en el archivo .env (por ejemplo PUERTO=${puerto + 1}) y vuelve a arrancar.`);
+    process.exit(1);
+  }
+  throw err;
+});

@@ -87,7 +87,7 @@ cp .env.example .env      # y pega tu clave en ANTHROPIC_API_KEY
 npm start
 ```
 
-Abre http://localhost:3000. Sin clave, la oficina se abre en **modo vista**: puedes recorrerla y preparar tareas, pero los agentes no trabajan.
+Abre http://localhost:4000. Sin clave, la oficina se abre en **modo vista**: puedes recorrerla y preparar tareas, pero los agentes no trabajan.
 
 ### Primeros pasos recomendados
 
